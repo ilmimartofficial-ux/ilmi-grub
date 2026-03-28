@@ -10,15 +10,18 @@
             --mart-blue: #0056b3;
             --grosir-orange: #FF9800;
             --grosir-dark: #E65100;
+            --opname-red: #d32f2f; /* Warna baru untuk fitur Opname */
             --bg-light: #FFFDE7;
         }
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
         
+        /* NAVIGATION TABS */
         .nav-tabs { display: flex; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .tab-btn { flex: 1; padding: 18px; border: none; font-weight: bold; cursor: pointer; background: #ddd; transition: 0.3s; font-size: 0.9em; }
+        .tab-btn { flex: 1; padding: 18px; border: none; font-weight: bold; cursor: pointer; background: #ddd; transition: 0.3s; font-size: 0.8em; }
         .tab-btn.active-mart { background: var(--mart-yellow); color: var(--mart-blue); border-bottom: 4px solid var(--mart-blue); }
         .tab-btn.active-grosir { background: var(--grosir-orange); color: white; border-bottom: 4px solid var(--grosir-dark); }
+        .tab-btn.active-opname { background: var(--opname-red); color: white; border-bottom: 4px solid #b71c1c; }
 
         .container { max-width: 500px; margin: auto; padding: 15px; }
         .card { background: white; padding: 20px; border-radius: 0 0 20px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
@@ -35,10 +38,13 @@
         .result-box { color: white; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: center; font-weight: bold; }
         button.btn-copy { width: 100%; padding: 18px; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.2em; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
+        /* THEMES */
         .mart-theme h2, .mart-theme label { color: var(--mart-blue); }
         .mart-theme .result-box, .mart-theme button.btn-copy { background: var(--mart-blue); }
         .grosir-theme h2, .grosir-theme label { color: var(--grosir-dark); }
         .grosir-theme .result-box, .grosir-theme button.btn-copy { background: #0277BD; }
+        .opname-theme h2, .opname-theme label { color: var(--opname-red); }
+        .opname-theme .result-box, .opname-theme button.btn-copy { background: var(--opname-red); }
     </style>
 </head>
 <body>
@@ -46,6 +52,7 @@
 <div class="nav-tabs">
     <button class="tab-btn active-mart" id="tab-m" onclick="openTab('mart')">🛒 ILMIMART</button>
     <button class="tab-btn" id="tab-g" onclick="openTab('grosir')">📦 ILMIGROSIR</button>
+    <button class="tab-btn" id="tab-o" onclick="openTab('opname')">📊 OPNAME</button>
 </div>
 
 <div class="container">
@@ -132,12 +139,45 @@
         </div>
         <button class="btn-copy" onclick="copyG()">📋 SALIN LAPORAN GROSIR</button>
     </div>
+
+    <div id="opname" class="card opname-theme">
+        <div class="top-credit">✨ Credit by Nopal ✨</div>
+        <h2>OPNAME NILAI SETOK HARIAN</h2>
+        <label>Tanggal Opname</label>
+        <input type="date" id="t_o">
+
+        <div class="section">
+            <label>Nilai Stok ILMIGROSIR</label>
+            <input type="tel" id="st_g" placeholder="Contoh: 182.323.941" oninput="hitungO()">
+            <label>Nilai Stok ILMIMART</label>
+            <input type="tel" id="st_m" placeholder="Contoh: 100.193.405" oninput="hitungO()">
+        </div>
+
+        <div class="section">
+            <label>Nilai Barang di Order ILMIMART</label>
+            <input type="tel" id="o_m" placeholder="Input Manual" oninput="hitungO()">
+            <label>Nilai Barang di Order KONSUMEN</label>
+            <input type="tel" id="o_k" placeholder="Input Manual" oninput="hitungO()">
+        </div>
+
+        <div class="result-box">
+            <p>Total Nilai Stok:</p>
+            <h3 id="res_o">Rp 0</h3>
+        </div>
+        <button class="btn-copy" onclick="copyO()">📋 SALIN OPNAME STOK</button>
+    </div>
 </div>
 
 <script>
     document.querySelectorAll('input[type="date"]').forEach(e => e.valueAsDate = new Date());
     function fR(n) { return n.toLocaleString('id-ID'); }
-    function cN(v) { return parseFloat(v.toString().replace(/[^0-9]/g, "")) || 0; }
+    
+    // Fungsi konversi angka fleksibel (mendukung titik dan koma)
+    function cN(v) { 
+        if(!v) return 0;
+        let s = v.toString().replace(/[^0-9,]/g, "").replace(",", ".");
+        return parseFloat(s) || 0;
+    }
     
     function pL(t, sub = false) {
         let tot = 0; if(!t) return 0;
@@ -150,12 +190,14 @@
 
     function openTab(name) {
         document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-mart', 'active-grosir'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-mart', 'active-grosir', 'active-opname'));
         document.getElementById(name).classList.add('active');
         if(name === 'mart') document.getElementById('tab-m').classList.add('active-mart');
-        else document.getElementById('tab-g').classList.add('active-grosir');
+        else if(name === 'grosir') document.getElementById('tab-g').classList.add('active-grosir');
+        else document.getElementById('tab-o').classList.add('active-opname');
     }
 
+    // LOGIKA TETAP (ILMIMART)
     function hitungM() {
         const c = cN(document.getElementById('c_m').value);
         const pl = pL(document.getElementById('pl_m').value);
@@ -165,28 +207,24 @@
         const fis = cN(document.getElementById('f_m').value);
         const adm = pL(document.getElementById('tp_m').value, true) + pL(document.getElementById('tr_m').value, true);
         const md = cN(document.getElementById('md_m').value);
-
-        // REVISI: Admin ATM sekarang dijumlahkan ke Uang Seharusnya
-        const seharusnya = c - pl - q + tp - tr + adm;
-        const sel = fis - seharusnya;
-
+        const seh = c - pl - q + tp - tr + adm;
+        const sel = fis - seh;
         document.getElementById('p_c_m').innerText = "Rp " + fR(c);
         document.getElementById('adm_m').innerText = fR(adm);
-        document.getElementById('s_m').innerText = fR(seharusnya);
+        document.getElementById('s_m').innerText = fR(seh);
         document.getElementById('sel_m').innerText = (sel >= 0 ? "+" : "") + fR(sel);
-        return { c, pl, q, tp, tr, adm, md, seharusnya, sel, fis };
+        return { c, pl, q, tp, tr, adm, md, seh, sel, fis };
     }
 
+    // LOGIKA TETAP (ILMIGROSIR)
     function hitungG() {
         const c = cN(document.getElementById('c_g').value), mo = cN(document.getElementById('mo_g').value);
         const pot = cN(document.getElementById('pot_g').value), pl = pL(document.getElementById('pl_g').value);
         const ptl = pL(document.getElementById('ptl_g').value), fis = cN(document.getElementById('f_g').value);
         const m = cN(document.getElementById('m_g').value);
-
         const kon = c - mo - pot;
         const seh = kon - pl - ptl;
         const sel = fis - seh;
-
         document.getElementById('p_c_g').innerText = "Rp " + fR(c);
         document.getElementById('s_g').innerText = fR(seh);
         const s = document.getElementById('stat_g');
@@ -194,12 +232,20 @@
         return { c, mo, pot, kon, pl, ptl, seh, fis, sel, m };
     }
 
+    // LOGIKA BARU (OPNAME)
+    function hitungO() {
+        const sg = cN(document.getElementById('st_g').value);
+        const sm = cN(document.getElementById('st_m').value);
+        const total = sg + sm;
+        document.getElementById('res_o').innerText = "Rp " + fR(total);
+        return { sg, sm, total };
+    }
+
     function copyM() {
         const d = hitungM();
         const t = document.getElementById('t_m').value.split('-').reverse().join('/');
         const ptlText = document.getElementById('ptl_m').value || "-";
-        
-        const teks = `LAPORAN KEUANGAN ILMIMART\n\n*${document.getElementById('k_m').value}*\nTanggal: ${t}\n\nComputer: ${fR(d.c)}\n\n_[ PENGELUARAN ]_\nLangsung:\n${document.getElementById('pl_m').value || "-"}\n\nPengeluaran Tak Langsung:\n${ptlText}\n\n_[ TRANSAKSI & MUTASI ]_\nBelanja QRIS: -${fR(d.q)}\n\nTop Up:\n${document.getElementById('tp_m').value || "-"}\n\n+= *${fR(d.tp)}*\n\nTarik Tunai:\n${document.getElementById('tr_m').value || "-"}\n\n-= *${fR(d.tr)}*\n\n_[ MARGIN & KEUNTUNGAN ]_\nMargin Dasar: ${fR(d.md)}\nAdmin ATM: ${fR(d.adm)}\n✅ TOTAL MARGIN: *${fR(d.md + d.adm)}*\n\n_[ REKAPITULASI AKHIR ]_\nUang Seharusnya: ${fR(d.seharusnya)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}\nFISIK UANG: ${fR(d.fis)} ✅`;
+        const teks = `LAPORAN KEUANGAN ILMIMART\n\n*${document.getElementById('k_m').value}*\nTanggal: ${t}\n\nComputer: ${fR(d.c)}\n\n_[ PENGELUARAN ]_\nLangsung:\n${document.getElementById('pl_m').value || "-"}\n\nPengeluaran Tak Langsung:\n${ptlText}\n\n_[ TRANSAKSI & MUTASI ]_\nBelanja QRIS: -${fR(d.q)}\n\nTop Up:\n${document.getElementById('tp_m').value || "-"}\n\n+= *${fR(d.tp)}*\n\nTarik Tunai:\n${document.getElementById('tr_m').value || "-"}\n\n-= *${fR(d.tr)}*\n\n_[ MARGIN & KEUNTUNGAN ]_\nMargin Dasar: ${fR(d.md)}\nAdmin ATM: ${fR(d.adm)}\n✅ TOTAL MARGIN: *${fR(d.md + d.adm)}*\n\n_[ REKAPITULASI AKHIR ]_\nUang Seharusnya: ${fR(d.seh)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}\nFISIK UANG: ${fR(d.fis)} ✅`;
         navigator.clipboard.writeText(teks); alert("Laporan Mart Disalin!");
     }
 
@@ -208,6 +254,15 @@
         const t = document.getElementById('t_g').value.split('-').reverse().join('/');
         const teks = `${t}\n✅${document.getElementById('k_g').value}\nComputer: ${fR(d.c)}\nOrder ILMIMART: ${fR(d.mo)}\npot ( ${fR(d.pot)} )\n✅konsumen ${fR(d.kon)}\n\nPengeluaran Langsung\n${document.getElementById('pl_g').value || "-"}\n\nPengeluaran Tak Langsung\n${document.getElementById('ptl_g').value || "✅"}\n\nNON TUNAI\n*\n\nTotal uang sudah di potong pengeluaran: ${fR(d.seh)}\nMARGIN: ${fR(d.m)}\nTOTAL: ${fR(d.seh)}\n✅FISIK: ${fR(d.fis)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}`;
         navigator.clipboard.writeText(teks); alert("Laporan Grosir Disalin!");
+    }
+
+    function copyO() {
+        const d = hitungO();
+        const t = document.getElementById('t_o').value.split('-').reverse().join(' ');
+        const om = document.getElementById('o_m').value || "0";
+        const ok = document.getElementById('o_k').value || "0";
+        const teks = `*OPNAME NILAI SETOK HARIAN*\n\nTGL: ${t}\n\nNilai Stok ilmigrosir:\n*Rp.${fR(d.sg)}*\nNilai stok ilmimart:\n*${fR(d.sm)}*\n\nTotal= *${fR(d.total)}*\n\nNilai barang yg di order\nIlmimart. : *${om}*\nKonsumen: *${ok}*`;
+        navigator.clipboard.writeText(teks); alert("Laporan Opname Disalin!");
     }
 </script>
 </body>
