@@ -15,7 +15,6 @@
 
         body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
         
-        /* NAVIGATION TABS */
         .nav-tabs { display: flex; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .tab-btn { flex: 1; padding: 18px; border: none; font-weight: bold; cursor: pointer; background: #ddd; transition: 0.3s; font-size: 0.9em; }
         .tab-btn.active-mart { background: var(--mart-yellow); color: var(--mart-blue); border-bottom: 4px solid var(--mart-blue); }
@@ -36,7 +35,6 @@
         .result-box { color: white; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: center; font-weight: bold; }
         button.btn-copy { width: 100%; padding: 18px; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.2em; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
 
-        /* THEMES */
         .mart-theme h2, .mart-theme label { color: var(--mart-blue); }
         .mart-theme .result-box, .mart-theme button.btn-copy { background: var(--mart-blue); }
         .grosir-theme h2, .grosir-theme label { color: var(--grosir-dark); }
@@ -168,14 +166,15 @@
         const adm = pL(document.getElementById('tp_m').value, true) + pL(document.getElementById('tr_m').value, true);
         const md = cN(document.getElementById('md_m').value);
 
-        const seh = c - pl - q + tp - tr;
-        const sel = fis - seh;
+        // REVISI: Admin ATM sekarang dijumlahkan ke Uang Seharusnya
+        const seharusnya = c - pl - q + tp - tr + adm;
+        const sel = fis - seharusnya;
 
         document.getElementById('p_c_m').innerText = "Rp " + fR(c);
         document.getElementById('adm_m').innerText = fR(adm);
-        document.getElementById('s_m').innerText = fR(seh);
+        document.getElementById('s_m').innerText = fR(seharusnya);
         document.getElementById('sel_m').innerText = (sel >= 0 ? "+" : "") + fR(sel);
-        return { c, pl, q, tp, tr, adm, md, seh, sel, fis };
+        return { c, pl, q, tp, tr, adm, md, seharusnya, sel, fis };
     }
 
     function hitungG() {
@@ -200,7 +199,7 @@
         const t = document.getElementById('t_m').value.split('-').reverse().join('/');
         const ptlText = document.getElementById('ptl_m').value || "-";
         
-        const teks = `LAPORAN KEUANGAN ILMIMART\n\n*${document.getElementById('k_m').value}*\nTanggal: ${t}\n\nComputer: ${fR(d.c)}\n\n_[ PENGELUARAN ]_\nLangsung:\n${document.getElementById('pl_m').value || "-"}\n\nPengeluaran Tak Langsung:\n${ptlText}\n\n_[ TRANSAKSI & MUTASI ]_\nBelanja QRIS: -${fR(d.q)}\n\nTop Up:\n${document.getElementById('tp_m').value || "-"}\n\n+= *${fR(d.tp)}*\n\nTarik Tunai:\n${document.getElementById('tr_m').value || "-"}\n\n-= *${fR(d.tr)}*\n\n_[ MARGIN & KEUNTUNGAN ]_\nMargin Dasar: ${fR(d.md)}\nAdmin ATM: ${fR(d.adm)}\n✅ TOTAL MARGIN: *${fR(d.md + d.adm)}*\n\n_[ REKAPITULASI AKHIR ]_\nUang Seharusnya: ${fR(d.seh)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}\nFISIK UANG: ${fR(d.fis)} ✅`;
+        const teks = `LAPORAN KEUANGAN ILMIMART\n\n*${document.getElementById('k_m').value}*\nTanggal: ${t}\n\nComputer: ${fR(d.c)}\n\n_[ PENGELUARAN ]_\nLangsung:\n${document.getElementById('pl_m').value || "-"}\n\nPengeluaran Tak Langsung:\n${ptlText}\n\n_[ TRANSAKSI & MUTASI ]_\nBelanja QRIS: -${fR(d.q)}\n\nTop Up:\n${document.getElementById('tp_m').value || "-"}\n\n+= *${fR(d.tp)}*\n\nTarik Tunai:\n${document.getElementById('tr_m').value || "-"}\n\n-= *${fR(d.tr)}*\n\n_[ MARGIN & KEUNTUNGAN ]_\nMargin Dasar: ${fR(d.md)}\nAdmin ATM: ${fR(d.adm)}\n✅ TOTAL MARGIN: *${fR(d.md + d.adm)}*\n\n_[ REKAPITULASI AKHIR ]_\nUang Seharusnya: ${fR(d.seharusnya)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}\nFISIK UANG: ${fR(d.fis)} ✅`;
         navigator.clipboard.writeText(teks); alert("Laporan Mart Disalin!");
     }
 
