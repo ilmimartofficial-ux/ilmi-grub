@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APLIKASI LAPORAN ILMI GRUB</title>
+    <style>
+        :root {
+            --mart-yellow: #FFD700;
+            --mart-blue: #0056b3;
+            --grosir-orange: #FF9800;
+            --grosir-dark: #E65100;
+            --bg-light: #FFFDE7;
+        }
+
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; background: #f4f4f4; color: #333; }
+        
+        /* NAVIGATION TABS */
+        .nav-tabs { display: flex; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .tab-btn { flex: 1; padding: 18px; border: none; font-weight: bold; cursor: pointer; background: #ddd; transition: 0.3s; font-size: 0.9em; }
+        .tab-btn.active-mart { background: var(--mart-yellow); color: var(--mart-blue); border-bottom: 4px solid var(--mart-blue); }
+        .tab-btn.active-grosir { background: var(--grosir-orange); color: white; border-bottom: 4px solid var(--grosir-dark); }
+
+        .container { max-width: 500px; margin: auto; padding: 15px; }
+        .card { background: white; padding: 20px; border-radius: 0 0 20px 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: none; }
+        .card.active { display: block; }
+
+        .top-credit { text-align: center; font-weight: 800; font-size: 0.7em; color: #999; text-transform: uppercase; margin-bottom: 10px; }
+        h2 { text-align: center; margin-top: 0; font-size: 1.4em; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .section { background: var(--bg-light); border: 1px solid #ffe082; padding: 12px; border-radius: 12px; margin-bottom: 12px; }
+        label { display: block; margin-top: 10px; font-size: 0.85em; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 12px; margin-top: 5px; border: 2px solid #ddd; border-radius: 10px; box-sizing: border-box; font-size: 1.1em; outline: none; }
+        .preview { font-size: 0.85em; font-weight: bold; margin-top: 5px; display: block; padding: 6px 10px; border-radius: 6px; background: #e3f2fd; color: #0056b3; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        
+        .result-box { color: white; padding: 15px; border-radius: 12px; margin-top: 15px; text-align: center; font-weight: bold; }
+        button.btn-copy { width: 100%; padding: 18px; color: white; border: none; border-radius: 15px; font-weight: bold; font-size: 1.2em; cursor: pointer; margin-top: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+
+        /* THEMES */
+        .mart-theme h2, .mart-theme label { color: var(--mart-blue); }
+        .mart-theme .result-box, .mart-theme button.btn-copy { background: var(--mart-blue); }
+        .grosir-theme h2, .grosir-theme label { color: var(--grosir-dark); }
+        .grosir-theme .result-box, .grosir-theme button.btn-copy { background: #0277BD; }
+    </style>
+</head>
+<body>
+
+<div class="nav-tabs">
+    <button class="tab-btn active-mart" id="tab-m" onclick="openTab('mart')">🛒 ILMIMART</button>
+    <button class="tab-btn" id="tab-g" onclick="openTab('grosir')">📦 ILMIGROSIR</button>
+</div>
+
+<div class="container">
+    <div id="mart" class="card mart-theme active">
+        <div class="top-credit">✨ Credit by Nopal ✨</div>
+        <h2>APLIKASI LAPORAN ILMI GRUB</h2>
+        <div class="grid">
+            <div><label>Kasir</label><select id="k_m"><option>WULAN</option><option>IKA</option></select></div>
+            <div><label>Tanggal</label><input type="date" id="t_m"></div>
+        </div>
+        
+        <label>💻 Computer (Sistem)</label>
+        <input type="tel" id="c_m" placeholder="0" oninput="hitungM()">
+        <span class="preview" id="p_c_m">Rp 0</span>
+
+        <div class="section">
+            <label>🛒 PENGELUARAN LANGSUNG (Potong Kas)</label>
+            <textarea id="pl_m" placeholder="5000 Parkir" oninput="hitungM()"></textarea>
+            
+            <label style="margin-top:15px">🚫 PENGELUARAN TAK LANGSUNG (Catatan Saja)</label>
+            <textarea id="ptl_m" placeholder="Contoh: Pulsa Listrik" oninput="hitungM()"></textarea>
+        </div>
+
+        <div class="section">
+            <label>📱 MUTASI & QRIS</label>
+            <input type="tel" id="q_m" placeholder="Total Belanja QRIS" oninput="hitungM()">
+            <textarea id="tp_m" placeholder="Topup: 8000000(25000)" style="margin-top:8px" oninput="hitungM()"></textarea>
+            <textarea id="tr_m" placeholder="Tarik: 100000(5000)" style="margin-top:8px" oninput="hitungM()"></textarea>
+        </div>
+
+        <div class="section">
+            <label>📈 MARGIN & ADMIN</label>
+            <input type="tel" id="md_m" placeholder="Margin Dasar" oninput="hitungM()">
+            <p style="font-size:0.9em; margin-top:8px;">Admin ATM: <span id="adm_m">0</span></p>
+        </div>
+
+        <div class="section">
+            <label>💰 FISIK UANG (LACI)</label>
+            <input type="tel" id="f_m" placeholder="0" oninput="hitungM()" style="border-color:var(--mart-blue)">
+            <div class="result-box">
+                <p>Uang Seharusnya: <span id="s_m">0</span></p>
+                <p>SELISIH: <span id="sel_m">0</span></p>
+            </div>
+        </div>
+        <button class="btn-copy" onclick="copyM()">📋 SALIN LAPORAN MART</button>
+    </div>
+
+    <div id="grosir" class="card grosir-theme">
+        <div class="top-credit">✨ Credit by Nopal ✨</div>
+        <h2>APLIKASI LAPORAN ILMI GRUB</h2>
+        <div class="grid">
+            <div><label>Kasir</label><select id="k_g"><option>ANDEL</option><option>WULAN</option><option>IKA</option></select></div>
+            <div><label>Tanggal</label><input type="date" id="t_g"></div>
+        </div>
+
+        <label>💻 Computer (Total Omset)</label>
+        <input type="tel" id="c_g" placeholder="0" oninput="hitungG()">
+        <span class="preview" id="p_c_g">Rp 0</span>
+
+        <div class="section">
+            <label>📦 ORDER & POTONGAN</label>
+            <input type="tel" id="mo_g" placeholder="Order ILMIMART" oninput="hitungG()">
+            <input type="tel" id="pot_g" placeholder="Potongan (pot)" style="margin-top:8px" oninput="hitungG()">
+        </div>
+
+        <div class="section">
+            <label>💸 PENGELUARAN</label>
+            <textarea id="pl_g" placeholder="Pengeluaran Langsung" oninput="hitungG()"></textarea>
+            <textarea id="ptl_g" placeholder="Pengeluaran Tak Langsung" style="margin-top:8px" oninput="hitungG()"></textarea>
+        </div>
+
+        <div class="section">
+            <label>📈 KEUNTUNGAN</label>
+            <input type="tel" id="m_g" placeholder="Margin" oninput="hitungG()">
+        </div>
+
+        <div class="section">
+            <label>💰 FISIK UANG (LACI)</label>
+            <input type="tel" id="f_g" placeholder="0" oninput="hitungG()" style="border-color:#0277BD">
+            <div class="result-box">
+                <p>Seharusnya: <span id="s_g">0</span></p>
+                <p id="stat_g">MATCH ✅</p>
+            </div>
+        </div>
+        <button class="btn-copy" onclick="copyG()">📋 SALIN LAPORAN GROSIR</button>
+    </div>
+</div>
+
+<script>
+    document.querySelectorAll('input[type="date"]').forEach(e => e.valueAsDate = new Date());
+    function fR(n) { return n.toLocaleString('id-ID'); }
+    function cN(v) { return parseFloat(v.toString().replace(/[^0-9]/g, "")) || 0; }
+    
+    function pL(t, sub = false) {
+        let tot = 0; if(!t) return 0;
+        t.split('\n').forEach(l => {
+            if(sub) { const m = l.match(/\(([^)]+)\)/); if(m) tot += cN(m[1]); }
+            else { const m = l.split('(')[0].match(/(\d[\d\.]*)/); if(m) tot += cN(m[1]); }
+        });
+        return tot;
+    }
+
+    function openTab(name) {
+        document.querySelectorAll('.card').forEach(c => c.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-mart', 'active-grosir'));
+        document.getElementById(name).classList.add('active');
+        if(name === 'mart') document.getElementById('tab-m').classList.add('active-mart');
+        else document.getElementById('tab-g').classList.add('active-grosir');
+    }
+
+    function hitungM() {
+        const c = cN(document.getElementById('c_m').value);
+        const pl = pL(document.getElementById('pl_m').value);
+        const q = cN(document.getElementById('q_m').value);
+        const tp = pL(document.getElementById('tp_m').value);
+        const tr = pL(document.getElementById('tr_m').value);
+        const fis = cN(document.getElementById('f_m').value);
+        const adm = pL(document.getElementById('tp_m').value, true) + pL(document.getElementById('tr_m').value, true);
+        const md = cN(document.getElementById('md_m').value);
+
+        const seh = c - pl - q + tp - tr;
+        const sel = fis - seh;
+
+        document.getElementById('p_c_m').innerText = "Rp " + fR(c);
+        document.getElementById('adm_m').innerText = fR(adm);
+        document.getElementById('s_m').innerText = fR(seh);
+        document.getElementById('sel_m').innerText = (sel >= 0 ? "+" : "") + fR(sel);
+        return { c, pl, q, tp, tr, adm, md, seh, sel, fis };
+    }
+
+    function hitungG() {
+        const c = cN(document.getElementById('c_g').value), mo = cN(document.getElementById('mo_g').value);
+        const pot = cN(document.getElementById('pot_g').value), pl = pL(document.getElementById('pl_g').value);
+        const ptl = pL(document.getElementById('ptl_g').value), fis = cN(document.getElementById('f_g').value);
+        const m = cN(document.getElementById('m_g').value);
+
+        const kon = c - mo - pot;
+        const seh = kon - pl - ptl;
+        const sel = fis - seh;
+
+        document.getElementById('p_c_g').innerText = "Rp " + fR(c);
+        document.getElementById('s_g').innerText = fR(seh);
+        const s = document.getElementById('stat_g');
+        if(sel === 0) s.innerText = "MATCH ✅"; else s.innerText = (sel > 0 ? "PLUS +" : "MINUS -") + fR(Math.abs(sel));
+        return { c, mo, pot, kon, pl, ptl, seh, fis, sel, m };
+    }
+
+    function copyM() {
+        const d = hitungM();
+        const t = document.getElementById('t_m').value.split('-').reverse().join('/');
+        const ptlText = document.getElementById('ptl_m').value || "-";
+        
+        const teks = `LAPORAN KEUANGAN ILMIMART\n\n*${document.getElementById('k_m').value}*\nTanggal: ${t}\n\nComputer: ${fR(d.c)}\n\n_[ PENGELUARAN ]_\nLangsung:\n${document.getElementById('pl_m').value || "-"}\n\nPengeluaran Tak Langsung:\n${ptlText}\n\n_[ TRANSAKSI & MUTASI ]_\nBelanja QRIS: -${fR(d.q)}\n\nTop Up:\n${document.getElementById('tp_m').value || "-"}\n\n+= *${fR(d.tp)}*\n\nTarik Tunai:\n${document.getElementById('tr_m').value || "-"}\n\n-= *${fR(d.tr)}*\n\n_[ MARGIN & KEUNTUNGAN ]_\nMargin Dasar: ${fR(d.md)}\nAdmin ATM: ${fR(d.adm)}\n✅ TOTAL MARGIN: *${fR(d.md + d.adm)}*\n\n_[ REKAPITULASI AKHIR ]_\nUang Seharusnya: ${fR(d.seh)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}\nFISIK UANG: ${fR(d.fis)} ✅`;
+        navigator.clipboard.writeText(teks); alert("Laporan Mart Disalin!");
+    }
+
+    function copyG() {
+        const d = hitungG();
+        const t = document.getElementById('t_g').value.split('-').reverse().join('/');
+        const teks = `${t}\n✅${document.getElementById('k_g').value}\nComputer: ${fR(d.c)}\nOrder ILMIMART: ${fR(d.mo)}\npot ( ${fR(d.pot)} )\n✅konsumen ${fR(d.kon)}\n\nPengeluaran Langsung\n${document.getElementById('pl_g').value || "-"}\n\nPengeluaran Tak Langsung\n${document.getElementById('ptl_g').value || "✅"}\n\nNON TUNAI\n*\n\nTotal uang sudah di potong pengeluaran: ${fR(d.seh)}\nMARGIN: ${fR(d.m)}\nTOTAL: ${fR(d.seh)}\n✅FISIK: ${fR(d.fis)}\nSelisih: ${d.sel >= 0 ? "+" : ""}${fR(d.sel)}`;
+        navigator.clipboard.writeText(teks); alert("Laporan Grosir Disalin!");
+    }
+</script>
+</body>
+</html>
